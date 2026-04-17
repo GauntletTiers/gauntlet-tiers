@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support — Gauntlet Tiers</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+<nav>
+  <a href="../index.html" class="nav-brand">Gauntlet<span> Tiers</span></a>
+  <ul class="nav-links">
+    <li><a href="../index.html">Home</a></li>
+    <li><a href="tierlist.html">Tier List</a></li>
+    <li><a href="community.html">Community</a></li>
+    <li><a href="support.html" class="active">Support</a></li>
+  </ul>
+  <div class="nav-auth">
+    <div class="nav-user">
+      <a href="admin.html" class="btn-ghost nav-admin" style="display:none;">Admin</a>
+      <a href="profile.html" class="btn-ghost"><span class="nav-username">Profile</span></a>
+      <button class="btn-danger logout-btn">Logout</button>
+    </div>
+    <div class="nav-login">
+      <a href="login.html" class="btn-ghost">Login</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <h1>Support Center</h1>
+    <p>Frequently asked questions and contact information</p>
+  </div>
+
+  <div class="support-page">
+
+    <div class="section-header" style="text-align:left;margin-bottom:1.5rem;">
+      <h2 style="font-family:'Rajdhani',sans-serif;font-size:1.2rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;">Frequently Asked Questions</h2>
+    </div>
+
+    <div class="faq-list">
+
+      <div class="faq-item">
+        <button class="faq-question">
+          How do I get ranked?
+          <span class="arrow">▼</span>
+        </button>
+        <div class="faq-answer">
+          To get ranked, join our Discord server and participate in ranked tournaments. Our staff will evaluate your performance and assign you a tier based on your results. You can also request an evaluation in the #rank-request channel.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">
+          What do HT and LT mean?
+          <span class="arrow">▼</span>
+        </button>
+        <div class="faq-answer">
+          HT stands for "High Tier" and LT stands for "Low Tier". Each tier number (1–5) has a high and low subdivision, giving us 10 total tiers. HT1 is the highest possible rank, while LT5 is the entry level. Think of HT as the upper half and LT as the lower half of each tier bracket.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">
+          Can I improve my tier?
+          <span class="arrow">▼</span>
+        </button>
+        <div class="faq-answer">
+          Yes! Tiers are updated weekly based on tournament performance. Win matches consistently and you'll climb the rankings. You can also request a tier review in our Discord if you believe your current tier doesn't reflect your actual skill level.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">
+          Which game modes are ranked?
+          <span class="arrow">▼</span>
+        </button>
+        <div class="faq-answer">
+          We currently rank players in six game modes: Sword, Axe, UHC, Pot, Crystal, and SMP PvP. Your rank in each mode is tracked separately — you can be HT2 in Sword but LT4 in Crystal, for example.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">
+          How do I dispute my tier?
+          <span class="arrow">▼</span>
+        </button>
+        <div class="faq-answer">
+          If you believe your tier is inaccurate, open a ticket in our Discord server. Include evidence such as match recordings, tournament results, or clips showcasing your skill. Our staff will review your case and respond within 48 hours.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">
+          How often is the tier list updated?
+          <span class="arrow">▼</span>
+        </button>
+        <div class="faq-answer">
+          The tier list is updated weekly every Sunday evening. Major updates based on tournament results may be pushed mid-week as well. Follow our Discord announcements to stay up to date.
+        </div>
+      </div>
+
+    </div>
+
+    <div class="contact-card">
+      <h2>Need More Help?</h2>
+      <p>For tier disputes, bug reports, or other inquiries, contact our support team:</p>
+      <p class="contact-email">support.gauntlettiers@gmail.com</p>
+      <p style="color:var(--text-muted);font-size:0.82rem;margin-top:0.75rem;">Or open a ticket in our Discord server for faster responses.</p>
+      <br />
+      <a href="https://discord.gg/GcqFCAnBjm" target="_blank" class="btn-primary">Open Discord</a>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <a href="../index.html" class="footer-brand">Gauntlet Tiers</a>
+  <div class="footer-links">
+    <a href="../index.html">Home</a>
+    <a href="tierlist.html">Rankings</a>
+    <a href="community.html">Community</a>
+    <a href="support.html">Support</a>
+  </div>
+</footer>
+
+<script src="../js/auth.js"></script>
+<script>
+  // FAQ accordion
+  document.querySelectorAll('.faq-question').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const answer = btn.nextElementSibling;
+      const isOpen = btn.classList.contains('open');
+
+      // Close all
+      document.querySelectorAll('.faq-question').forEach(b => b.classList.remove('open'));
+      document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('open'));
+
+      // Toggle clicked
+      if (!isOpen) {
+        btn.classList.add('open');
+        answer.classList.add('open');
+      }
+    });
+  });
+</script>
+</body>
+</html>

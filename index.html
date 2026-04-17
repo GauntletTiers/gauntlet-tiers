@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gauntlet Tiers — Competitive PvP Rankings</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav>
+  <a href="index.html" class="nav-brand">Gauntlet<span> Tiers</span></a>
+
+  <ul class="nav-links">
+    <li><a href="index.html" class="active">Home</a></li>
+    <li><a href="pages/tierlist.html">Tier List</a></li>
+    <li><a href="pages/community.html">Community</a></li>
+    <li><a href="pages/support.html">Support</a></li>
+  </ul>
+
+  <div class="nav-auth">
+    <div class="nav-user">
+      <a href="pages/admin.html" class="btn-ghost nav-admin" style="display:none;">Admin</a>
+      <a href="pages/profile.html" class="btn-ghost">
+        <span class="nav-username">Profile</span>
+      </a>
+      <button class="btn-danger logout-btn">Logout</button>
+    </div>
+    <div class="nav-login">
+      <a href="pages/login.html" class="btn-ghost">Login</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+
+    <div class="hero-badge">Est. 2026 · Competitive PvP</div>
+    <h1>
+      The <span class="highlight">Gauntlet</span><br />
+      Tier System
+    </h1>
+    <p>The most accurate ranking system for Minecraft PvP. Rated by competitive players, for competitive players.</p>
+    <div class="hero-buttons">
+      <a href="pages/tierlist.html" class="btn-large primary">View Rankings</a>
+      <a href="https://discord.gg/GcqFCAnBjm" target="_blank" class="btn-large outline">Join Discord</a>
+    </div>
+  </section>
+
+  <!-- ── STATS ── -->
+  <section class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-value" id="stat-players">0</span>
+      <span class="stat-label">Ranked Players</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value" id="stat-tournaments">Soon!</span>
+      <span class="stat-label">Tournaments</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value" id="stat-modes">6</span>
+      <span class="stat-label">Game Modes</span>
+    </div>
+  </section>
+
+  <!-- ── FEATURES ── -->
+  <section class="features">
+    <div class="section-header">
+      <h2>Why Gauntlet Tiers?</h2>
+      <p>The most trusted PvP ranking system</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🏆</div>
+        <h3>Accurate Rankings</h3>
+        <p>Our HT1–LT5 system provides precise skill differentiation based on tournament results and competitive play.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚔️</div>
+        <h3>Active Community</h3>
+        <p>Join thousands of competitive players in our Discord server and find matches at your skill level.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎮</div>
+        <h3>Multiple Modes</h3>
+        <p>Rankings for Sword, Axe, UHC, Pot, Crystal, and SMP PvP — separate tiers for each mode.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔄</div>
+        <h3>Weekly Updates</h3>
+        <p>Tier lists updated every week based on competitive performance and tournament results.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ── -->
+  <section class="cta-section">
+    <h2>Ready to prove your skill?</h2>
+    <p>Join our Discord to participate in ranked tournaments and get placed on the tier list.</p>
+    <a href="https://discord.gg/GcqFCAnBjm" target="_blank" class="btn-large primary">Join Discord</a>
+  </section>
+
+</main>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <a href="index.html" class="footer-brand">Gauntlet Tiers</a>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="pages/tierlist.html">Rankings</a>
+    <a href="pages/community.html">Community</a>
+    <a href="pages/support.html">Support</a>
+  </div>
+</footer>
+
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script>
+  // Load stats from backend
+  async function loadStats() {
+    try {
+      const stats = await getStats();
+      document.getElementById('stat-players').textContent = stats.ranked_players ?? 0;
+      document.getElementById('stat-modes').textContent = stats.game_modes ?? 6;
+    } catch (e) {
+      // API not connected yet — defaults shown
+    }
+  }
+  loadStats();
+</script>
+</body>
+</html>

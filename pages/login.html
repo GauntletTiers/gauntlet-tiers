@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — Gauntlet Tiers</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+<nav>
+  <a href="../index.html" class="nav-brand">Gauntlet<span> Tiers</span></a>
+  <ul class="nav-links">
+    <li><a href="../index.html">Home</a></li>
+    <li><a href="tierlist.html">Tier List</a></li>
+    <li><a href="community.html">Community</a></li>
+    <li><a href="support.html">Support</a></li>
+  </ul>
+  <div class="nav-auth">
+    <div class="nav-user">
+      <a href="profile.html" class="btn-ghost"><span class="nav-username">Profile</span></a>
+      <button class="btn-danger logout-btn">Logout</button>
+    </div>
+    <div class="nav-login">
+      <a href="login.html" class="btn-ghost">Login</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="auth-page">
+    <div class="auth-card">
+      <h2>Welcome Back</h2>
+      <p class="subtitle">Login to view your profile and rankings</p>
+
+      <div class="alert error" id="error-msg"></div>
+      <div class="alert success" id="success-msg"></div>
+
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="you@example.com" />
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="••••••••" />
+      </div>
+
+      <button class="btn-primary w-full" id="login-btn" style="width:100%;padding:0.75rem;">
+        Login
+      </button>
+
+      <div class="auth-footer">
+        Don't have an account? <a href="signup.html">Sign up</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="../js/auth.js"></script>
+<script>
+  document.getElementById('login-btn').addEventListener('click', async () => {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const errEl = document.getElementById('error-msg');
+    const btn = document.getElementById('login-btn');
+
+    errEl.classList.remove('show');
+
+    if (!email || !password) {
+      errEl.textContent = 'Please fill in all fields.';
+      errEl.classList.add('show');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = 'Logging in… <span class="spinner"></span>';
+
+    try {
+      await login(email, password);
+      window.location.href = '../index.html';
+    } catch (e) {
+      errEl.textContent = e.message || 'Invalid email or password.';
+      errEl.classList.add('show');
+      btn.disabled = false;
+      btn.textContent = 'Login';
+    }
+  });
+
+  // Allow Enter key
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('login-btn').click();
+  });
+</script>
+</body>
+</html>
