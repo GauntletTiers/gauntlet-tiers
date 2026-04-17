@@ -5,6 +5,54 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Panel — Gauntlet Tiers</title>
   <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    .mode-tier-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .mode-tier-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+    }
+    .mode-tier-card label {
+      display: block;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent-gold);
+      margin-bottom: 0.5rem;
+    }
+    .mode-tier-card select {
+      width: 100%;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-primary);
+      padding: 0.4rem 0.6rem;
+      font-family: 'Exo 2', sans-serif;
+      font-size: 0.85rem;
+      outline: none;
+    }
+    .mode-tier-card select:focus { border-color: var(--accent-gold); }
+    .tier-select-inline {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-primary);
+      padding: 0.3rem 0.4rem;
+      font-size: 0.78rem;
+      font-family: 'Exo 2', sans-serif;
+      outline: none;
+      width: 100%;
+    }
+    .tier-select-inline:focus { border-color: var(--accent-gold); }
+  </style>
 </head>
 <body>
 
@@ -34,16 +82,14 @@
     <p>Manage players, tiers, and users</p>
   </div>
 
-  <!-- Access denied (shown if not admin) -->
   <div class="admin-access-denied" style="display:none;">
     <p style="font-size:1.1rem;font-family:'Rajdhani',sans-serif;letter-spacing:1px;color:var(--accent-red);">⛔ Access Denied</p>
     <p style="color:var(--text-muted);margin-top:0.5rem;font-size:0.9rem;">You do not have admin permissions.</p>
   </div>
 
-  <!-- Admin content -->
   <div class="admin-page admin-content">
 
-    <!-- Stats cards -->
+    <!-- Stats -->
     <div class="admin-grid">
       <div class="admin-card">
         <h3>Total Players</h3>
@@ -59,18 +105,20 @@
       </div>
     </div>
 
-    <!-- Add Player -->
+    <!-- ── ADD PLAYER — all 6 modes at once ── -->
     <div class="admin-section">
       <h3>Add / Update Player</h3>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1rem;">Fill the tiers for each game mode. Leave blank to keep the player unranked in that mode.</p>
+
       <div class="alert error" id="add-error"></div>
       <div class="alert success" id="add-success"></div>
 
-      <div class="inline-form">
-        <div class="form-group">
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+        <div class="form-group" style="flex:2;min-width:200px;margin-bottom:0;">
           <label>Minecraft Username</label>
           <input type="text" id="add-username" placeholder="PlayerIGN" />
         </div>
-        <div class="form-group">
+        <div class="form-group" style="flex:1;min-width:140px;margin-bottom:0;">
           <label>Region</label>
           <select id="add-region">
             <option value="NA">NA</option>
@@ -81,41 +129,19 @@
             <option value="AF">AF</option>
           </select>
         </div>
-        <div class="form-group">
-          <label>Game Mode</label>
-          <select id="add-mode">
-            <option value="overall">Overall</option>
-            <option value="sword">Sword</option>
-            <option value="axe">Axe</option>
-            <option value="uhc">UHC</option>
-            <option value="pot">Pot</option>
-            <option value="crystal">Crystal</option>
-            <option value="smp">SMP</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Tier</label>
-          <select id="add-tier">
-            <option value="HT1">HT1 — Elite</option>
-            <option value="LT1">LT1 — Top Tier</option>
-            <option value="HT2">HT2 — High Tier</option>
-            <option value="LT2">LT2 — Good</option>
-            <option value="HT3">HT3 — Average+</option>
-            <option value="LT3">LT3 — Average</option>
-            <option value="HT4">HT4 — Below Avg</option>
-            <option value="LT4">LT4 — Low</option>
-            <option value="HT5">HT5 — Very Low</option>
-            <option value="LT5">LT5 — Entry</option>
-          </select>
-        </div>
-        <div class="form-group" style="flex:0;">
-          <label>&nbsp;</label>
-          <button class="btn-primary" id="add-player-btn">Add Player</button>
-        </div>
+      </div>
+
+      <!-- 6 mode tier selectors -->
+      <div class="mode-tier-grid" id="mode-tier-grid"></div>
+
+      <div style="margin-top:1.25rem;">
+        <button class="btn-primary" id="add-player-btn" style="padding:0.65rem 2rem;">
+          Add Player
+        </button>
       </div>
     </div>
 
-    <!-- Player List -->
+    <!-- ── PLAYER LIST ── -->
     <div class="admin-section">
       <h3>Manage Players — <span id="list-mode-label">Overall</span></h3>
 
@@ -129,35 +155,24 @@
         <button class="mode-tab" data-mode="smp">SMP</button>
       </div>
 
-      <div class="tier-table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Player</th>
-              <th>Region</th>
-              <th>Tier</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
+      <div class="tier-table-wrapper" style="overflow-x:auto;">
+        <table id="admin-table" style="min-width:700px;">
+          <thead id="admin-table-head"></thead>
           <tbody id="admin-player-list">
-            <tr><td colspan="5"><div class="empty-state"><strong style="font-family:'Rajdhani',sans-serif;">Loading...</strong></div></td></tr>
+            <tr><td colspan="6"><div class="empty-state"><strong style="font-family:'Rajdhani',sans-serif;">Loading...</strong></div></td></tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- User Management -->
+    <!-- ── USERS ── -->
     <div class="admin-section">
       <h3>Users</h3>
       <div class="tier-table-wrapper">
         <table>
           <thead>
             <tr>
-              <th>Username</th>
-              <th>Email</th>
-              <th>Joined</th>
-              <th>Admin</th>
+              <th>Username</th><th>Email</th><th>Joined</th><th>Admin</th>
             </tr>
           </thead>
           <tbody id="admin-user-list">
@@ -183,16 +198,38 @@
 <script src="../js/auth.js"></script>
 <script src="../js/api.js"></script>
 <script>
+  const MODES = ['sword','axe','uhc','pot','crystal','smp'];
   const TIERS = ['HT1','LT1','HT2','LT2','HT3','LT3','HT4','LT4','HT5','LT5'];
+  const TIER_LABELS = {
+    HT1:'HT1 — Elite', LT1:'LT1 — Top Tier',
+    HT2:'HT2 — High Tier', LT2:'LT2 — Good',
+    HT3:'HT3 — Average+', LT3:'LT3 — Average',
+    HT4:'HT4 — Below Avg', LT4:'LT4 — Low',
+    HT5:'HT5 — Very Low', LT5:'LT5 — Entry'
+  };
+  const TIER_OPTIONS = `<option value="">— Unranked —</option>` +
+    TIERS.map(t => `<option value="${t}">${TIER_LABELS[t]}</option>`).join('');
+  const TIER_OPTIONS_NO_BLANK = TIERS.map(t => `<option value="${t}">${t}</option>`).join('');
+
   let currentMode = 'overall';
 
-  function escapeHtml(str) {
+  function esc(str) {
     const d = document.createElement('div');
-    d.appendChild(document.createTextNode(String(str)));
+    d.appendChild(document.createTextNode(String(str || '')));
     return d.innerHTML;
   }
 
-  // ── Check admin ────────────────────────────────────────
+  // ── Build 6 mode selectors in the Add form ─────────────
+  function buildModeTierGrid() {
+    document.getElementById('mode-tier-grid').innerHTML = MODES.map(mode => `
+      <div class="mode-tier-card">
+        <label>${mode.toUpperCase()}</label>
+        <select id="tier-${mode}">${TIER_OPTIONS}</select>
+      </div>
+    `).join('');
+  }
+
+  // ── Init ───────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', () => {
     const user = getUser();
     if (!user) { window.location.href = 'login.html'; return; }
@@ -201,7 +238,8 @@
       document.querySelector('.admin-access-denied').style.display = 'block';
       return;
     }
-    loadPlayers(currentMode);
+    buildModeTierGrid();
+    loadPlayers('overall');
     loadUsers();
     loadAdminStats();
   });
@@ -209,75 +247,19 @@
   // ── Stats ──────────────────────────────────────────────
   async function loadAdminStats() {
     try {
-      const stats = await getStats();
-      document.getElementById('admin-total-players').textContent = stats.ranked_players ?? '—';
-      document.getElementById('admin-total-users').textContent = stats.total_users ?? '—';
-    } catch (e) {}
+      const s = await getStats();
+      document.getElementById('admin-total-players').textContent = s.ranked_players ?? '—';
+      document.getElementById('admin-total-users').textContent = s.total_users ?? '—';
+    } catch(e) {}
   }
 
-  // ── Players ────────────────────────────────────────────
-  async function loadPlayers(mode) {
-    const tbody = document.getElementById('admin-player-list');
-    document.getElementById('list-mode-label').textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
-    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><strong style="font-family:'Rajdhani',sans-serif;">Loading...</strong></div></td></tr>`;
-    try {
-      const data = await getPlayers(mode);
-      const players = data.players || data;
-      if (!players.length) {
-        tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><strong style="font-family:'Rajdhani',sans-serif;">No players in this mode.</strong></div></td></tr>`;
-        return;
-      }
-      tbody.innerHTML = players.map((p, i) => `
-        <tr id="row-${p.id}">
-          <td class="rank-num">${i + 1}</td>
-          <td class="player-name">${escapeHtml(p.username)}</td>
-          <td><span class="region-badge">${escapeHtml(p.region || 'N/A')}</span></td>
-          <td>
-            <select class="tier-select" data-id="${p.id}" data-mode="${mode}" style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:4px;color:var(--text-primary);padding:0.3rem 0.5rem;font-family:'Exo 2',sans-serif;font-size:0.85rem;">
-              ${TIERS.map(t => `<option value="${t}" ${t === p.tier ? 'selected' : ''}>${t}</option>`).join('')}
-            </select>
-          </td>
-          <td style="display:flex;gap:0.5rem;align-items:center;">
-            <button class="btn-primary" style="padding:0.3rem 0.8rem;font-size:0.75rem;" onclick="saveTier('${p.id}', '${mode}')">Save</button>
-            <button class="btn-danger" style="padding:0.3rem 0.8rem;font-size:0.75rem;" onclick="removePlayer('${p.id}', '${escapeHtml(p.username)}')">Remove</button>
-          </td>
-        </tr>`).join('');
-    } catch (e) {
-      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><strong style="font-family:'Rajdhani',sans-serif;">Could not load players.</strong></div></td></tr>`;
-    }
-  }
-
-  async function saveTier(playerId, mode) {
-    const select = document.querySelector(`[data-id="${playerId}"]`);
-    const tier = select.value;
-    try {
-      await updatePlayerTier(playerId, mode, tier);
-      select.style.borderColor = 'var(--tier-ht3)';
-      setTimeout(() => select.style.borderColor = '', 1500);
-    } catch (e) {
-      alert('Failed to save tier: ' + e.message);
-    }
-  }
-
-  async function removePlayer(playerId, username) {
-    if (!confirm(`Remove ${username} from this mode?`)) return;
-    try {
-      await deletePlayer(playerId);
-      loadPlayers(currentMode);
-    } catch (e) {
-      alert('Failed to remove player: ' + e.message);
-    }
-  }
-
-  // ── Add player ─────────────────────────────────────────
+  // ── ADD PLAYER ─────────────────────────────────────────
   document.getElementById('add-player-btn').addEventListener('click', async () => {
     const username = document.getElementById('add-username').value.trim();
-    const region = document.getElementById('add-region').value;
-    const mode = document.getElementById('add-mode').value;
-    const tier = document.getElementById('add-tier').value;
-    const errEl = document.getElementById('add-error');
-    const successEl = document.getElementById('add-success');
-    const btn = document.getElementById('add-player-btn');
+    const region   = document.getElementById('add-region').value;
+    const errEl    = document.getElementById('add-error');
+    const successEl= document.getElementById('add-success');
+    const btn      = document.getElementById('add-player-btn');
 
     errEl.classList.remove('show');
     successEl.classList.remove('show');
@@ -288,17 +270,33 @@
       return;
     }
 
+    const entries = MODES
+      .map(mode => ({ mode, tier: document.getElementById(`tier-${mode}`).value }))
+      .filter(e => e.tier !== '');
+
+    if (!entries.length) {
+      errEl.textContent = 'Select at least one tier for any game mode.';
+      errEl.classList.add('show');
+      return;
+    }
+
     btn.disabled = true;
     btn.innerHTML = 'Adding… <span class="spinner"></span>';
 
     try {
-      await addPlayer({ username, region, mode, tier });
-      successEl.textContent = `${username} added as ${tier} in ${mode}.`;
+      await Promise.all(entries.map(({ mode, tier }) =>
+        addPlayer({ username, region, mode, tier })
+      ));
+
+      successEl.textContent = `${username} added → ` + entries.map(e => `${e.mode.toUpperCase()}: ${e.tier}`).join(' · ');
       successEl.classList.add('show');
+
       document.getElementById('add-username').value = '';
-      if (currentMode === mode) loadPlayers(currentMode);
+      MODES.forEach(m => document.getElementById(`tier-${m}`).value = '');
+
+      loadPlayers(currentMode);
       loadAdminStats();
-    } catch (e) {
+    } catch(e) {
       errEl.textContent = e.message || 'Failed to add player.';
       errEl.classList.add('show');
     } finally {
@@ -307,7 +305,152 @@
     }
   });
 
-  // ── Mode tab switching ─────────────────────────────────
+  // ── LOAD PLAYERS ───────────────────────────────────────
+  async function loadPlayers(mode) {
+    const tbody = document.getElementById('admin-player-list');
+    const thead = document.getElementById('admin-table-head');
+    document.getElementById('list-mode-label').textContent =
+      mode.charAt(0).toUpperCase() + mode.slice(1);
+
+    tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><strong style="font-family:'Rajdhani',sans-serif;">Loading...</strong></div></td></tr>`;
+
+    try {
+      if (mode === 'overall') {
+        // Show all players with all 6 mode tiers
+        thead.innerHTML = `<tr>
+          <th>#</th><th>Player</th><th>Region</th>
+          ${MODES.map(m => `<th>${m.toUpperCase()}</th>`).join('')}
+          <th>Actions</th>
+        </tr>`;
+
+        const results = await Promise.all(
+          MODES.map(m => getPlayers(m).catch(() => ({ players: [] })))
+        );
+
+        // Merge all modes into one map keyed by username
+        const map = {};
+        results.forEach((res, i) => {
+          const m = MODES[i];
+          (res.players || res).forEach(p => {
+            if (!map[p.username]) map[p.username] = { region: p.region, tiers: {}, ids: {} };
+            map[p.username].tiers[m] = p.tier;
+            map[p.username].ids[m]   = p.id;
+          });
+        });
+
+        const players = Object.entries(map);
+        if (!players.length) {
+          const cols = MODES.length + 4;
+          tbody.innerHTML = `<tr><td colspan="${cols}"><div class="empty-state"><strong style="font-family:'Rajdhani',sans-serif;">No players yet. Add one above!</strong></div></td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = players.map(([username, data], idx) => `
+          <tr>
+            <td class="rank-num">${idx + 1}</td>
+            <td class="player-name">${esc(username)}</td>
+            <td><span class="region-badge">${esc(data.region || 'N/A')}</span></td>
+            ${MODES.map(m => `
+              <td>
+                ${data.ids[m]
+                  ? `<select class="tier-select-inline" data-id="${data.ids[m]}" data-mode="${m}">
+                      ${TIERS.map(t => `<option value="${t}" ${t === data.tiers[m] ? 'selected' : ''}>${t}</option>`).join('')}
+                    </select>`
+                  : `<span style="color:var(--text-muted);font-size:0.78rem;">—</span>`
+                }
+              </td>`).join('')}
+            <td style="white-space:nowrap;">
+              <button class="btn-primary" style="padding:0.28rem 0.65rem;font-size:0.73rem;" onclick="saveAllTiers('${esc(username)}')">Save</button>
+              <button class="btn-danger" style="padding:0.28rem 0.65rem;font-size:0.73rem;margin-left:3px;" onclick="removeAllModes('${esc(username)}')">Remove</button>
+            </td>
+          </tr>`).join('');
+
+      } else {
+        // Single mode
+        thead.innerHTML = `<tr><th>#</th><th>Player</th><th>Region</th><th>Tier</th><th>Actions</th></tr>`;
+        const data = await getPlayers(mode);
+        const players = data.players || data;
+
+        if (!players.length) {
+          tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><strong style="font-family:'Rajdhani',sans-serif;">No players in ${mode}.</strong></div></td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = players.map((p, idx) => `
+          <tr>
+            <td class="rank-num">${idx + 1}</td>
+            <td class="player-name">${esc(p.username)}</td>
+            <td><span class="region-badge">${esc(p.region || 'N/A')}</span></td>
+            <td>
+              <select class="tier-select-inline" data-id="${p.id}" data-mode="${mode}">
+                ${TIERS.map(t => `<option value="${t}" ${t === p.tier ? 'selected' : ''}>${t}</option>`).join('')}
+              </select>
+            </td>
+            <td style="white-space:nowrap;">
+              <button class="btn-primary" style="padding:0.28rem 0.65rem;font-size:0.73rem;" onclick="saveTier('${p.id}','${mode}')">Save</button>
+              <button class="btn-danger" style="padding:0.28rem 0.65rem;font-size:0.73rem;margin-left:3px;" onclick="removePlayer('${p.id}','${esc(p.username)}')">Remove</button>
+            </td>
+          </tr>`).join('');
+      }
+    } catch(e) {
+      tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><strong style="font-family:'Rajdhani',sans-serif;">Could not load players.</strong></div></td></tr>`;
+    }
+  }
+
+  // ── SAVE single tier ───────────────────────────────────
+  async function saveTier(id, mode) {
+    const sel = document.querySelector(`[data-id="${id}"][data-mode="${mode}"]`);
+    try {
+      await updatePlayerTier(id, mode, sel.value);
+      sel.style.borderColor = '#2ecc71';
+      setTimeout(() => sel.style.borderColor = '', 1500);
+    } catch(e) { alert('Failed: ' + e.message); }
+  }
+
+  // ── SAVE all tiers for a player (overall row) ──────────
+  async function saveAllTiers(username) {
+    const rows = document.querySelectorAll('#admin-player-list tr');
+    let selects = [];
+    rows.forEach(row => {
+      const nameCell = row.querySelector('.player-name');
+      if (nameCell && nameCell.textContent === username) {
+        selects = Array.from(row.querySelectorAll('.tier-select-inline'));
+      }
+    });
+    try {
+      await Promise.all(selects.map(sel =>
+        updatePlayerTier(sel.dataset.id, sel.dataset.mode, sel.value)
+      ));
+      selects.forEach(sel => {
+        sel.style.borderColor = '#2ecc71';
+        setTimeout(() => sel.style.borderColor = '', 1500);
+      });
+    } catch(e) { alert('Failed: ' + e.message); }
+  }
+
+  // ── REMOVE from one mode ───────────────────────────────
+  async function removePlayer(id, username) {
+    if (!confirm(`Remove ${username} from this mode?`)) return;
+    try { await deletePlayer(id); loadPlayers(currentMode); }
+    catch(e) { alert('Failed: ' + e.message); }
+  }
+
+  // ── REMOVE from all modes ──────────────────────────────
+  async function removeAllModes(username) {
+    if (!confirm(`Remove ${username} from ALL game modes?`)) return;
+    try {
+      const results = await Promise.all(MODES.map(m => getPlayers(m).catch(() => ({ players: [] }))));
+      const ids = [];
+      results.forEach(res => (res.players || res).forEach(p => {
+        if (p.username === username) ids.push(p.id);
+      }));
+      await Promise.all(ids.map(id => deletePlayer(id)));
+      loadPlayers('overall');
+      loadAdminStats();
+    } catch(e) { alert('Failed: ' + e.message); }
+  }
+
+  // ── Mode tabs ──────────────────────────────────────────
   document.querySelectorAll('.mode-tab').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.mode-tab').forEach(b => b.classList.remove('active'));
@@ -317,7 +460,7 @@
     });
   });
 
-  // ── Users ──────────────────────────────────────────────
+  // ── USERS ──────────────────────────────────────────────
   async function loadUsers() {
     const tbody = document.getElementById('admin-user-list');
     try {
@@ -329,27 +472,24 @@
       }
       tbody.innerHTML = users.map(u => `
         <tr>
-          <td class="player-name">${escapeHtml(u.username || '—')}</td>
-          <td style="color:var(--text-secondary);font-size:0.88rem;">${escapeHtml(u.email)}</td>
+          <td class="player-name">${esc(u.username || '—')}</td>
+          <td style="color:var(--text-secondary);font-size:0.88rem;">${esc(u.email)}</td>
           <td style="color:var(--text-muted);font-size:0.82rem;">${u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}</td>
           <td>
             <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
-              <input type="checkbox" ${u.is_admin ? 'checked' : ''} onchange="toggleAdmin('${u.id}', this.checked)" />
+              <input type="checkbox" ${u.is_admin ? 'checked' : ''} onchange="toggleAdmin('${u.id}',this.checked)" />
               <span style="font-size:0.82rem;color:var(--text-secondary);">Admin</span>
             </label>
           </td>
         </tr>`).join('');
-    } catch (e) {
+    } catch(e) {
       tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><strong style="font-family:'Rajdhani',sans-serif;">Could not load users.</strong></div></td></tr>`;
     }
   }
 
   async function toggleAdmin(userId, isAdmin) {
-    try {
-      await setUserAdmin(userId, isAdmin);
-    } catch (e) {
-      alert('Failed to update admin status: ' + e.message);
-    }
+    try { await setUserAdmin(userId, isAdmin); }
+    catch(e) { alert('Failed: ' + e.message); }
   }
 </script>
 </body>
