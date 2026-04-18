@@ -358,8 +358,86 @@ app.patch('/api/tournaments/:id/players/remove', auth, adminOnly, async (req, re
 // ── TOURNAMENT: UPDATE STATUS ──────────────────────────────
 app.patch('/api/tournaments/:id/status', auth, adminOnly, async (req, res) => {
   const { status } = req.body;
+  const updates = { status };
+  if (status === 'ongoing') updates.started_at = new Date().toISOString();
   const { error } = await supabase.from('tournaments')
-    .update({ status }).eq('id', req.params.id);
+    .update(updates).eq('id', req.params.id);
+  if (error) return res.status(500).json({ message: error.message });
+  res.json({ success: true });
+});
+
+// ── TOURNAMENT: SET CURRENT MATCH (admin) ─────────────────
+app.patch('/api/tournaments/:id/current-match', auth, adminOnly, async (req, res) => {
+  const { current_match } = req.body;
+  const { error } = await supabase.from('tournaments')
+    .update({ current_match }).eq('id', req.params.id);
+  if (error) return res.status(500).json({ message: error.message });
+  res.json({ success: true });
+});
+
+// ── TOURNAMENT: SUBMIT APPLICATION (public) ────────────────
+app.post('/api/tournaments/:id/apply', async (req, res) => {
+  const { discord_nick, ign } = req.body;
+  if (!discord_nick || !ign)
+    return res.status(400).json({ message: 'Discord nick and IGN required' });
+
+  // Check tournament exists and is ongoing
+  const { data: t, error: tErr } = await supabase
+    .from('tournaments').select('status, applications').eq('id', req.params.id).single();
+  if (tErr) return res.status(404).json({ message: 'Tournament not found' });
+  if (t.status !== 'ongoing')
+    return res.status(400).json({ message: 'This tournament is not open for applications' });
+
+  const apps = t.applications || [];
+  if (apps.find(a => a.ign.toLowerCase() === ign.toLowerCase()))
+    return res.status(409).json({ message: 'You already applied to this tournament' });
+
+  apps.push({ discord_nick, ign, status: 'pending', applied_at: new Date().toISOString() });
+
+  const { error } = await supabase.from('tournaments')
+    .update({ applications: apps }).eq('id', req.params.id);
+  if (error) return res.status(500).json({ message: error.message });
+  res.json({ success: true });
+});
+
+// ── TOURNAMENT: GET APPLICATIONS (admin sees all, user sees own+count) ──
+app.get('/api/tournaments/:id/applications', async (req, res) => {
+  const { data: t, error } = await supabase
+    .from('tournaments').select('applications, status').eq('id', req.params.id).single();
+  if (error) return res.status(500).json({ message: error.message });
+
+  const apps  = t.applications || [];
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  let isAdmin = false;
+
+  if (token) {
+    try {
+      const decoded = require('jsonwebtoken').verify(token, process.env.JWT_SECRET || 'change-this-secret');
+      isAdmin = decoded.is_admin;
+    } catch {}
+  }
+
+  if (isAdmin) return res.json({ applications: apps, total: apps.length });
+
+  // Non-admin: return count + pending/approved/rejected counts only
+  const pending  = apps.filter(a => a.status === 'pending').length;
+  const approved = apps.filter(a => a.status === 'approved').length;
+  res.json({ total: apps.length, pending, approved, applications: [] });
+});
+
+// ── TOURNAMENT: APPROVE/REJECT APPLICATION (admin) ────────
+app.patch('/api/tournaments/:id/applications/:ign', auth, adminOnly, async (req, res) => {
+  const { status } = req.body; // 'approved' | 'rejected'
+  const { data: t, error: tErr } = await supabase
+    .from('tournaments').select('applications').eq('id', req.params.id).single();
+  if (tErr) return res.status(500).json({ message: tErr.message });
+
+  const apps = (t.applications || []).map(a =>
+    a.ign.toLowerCase() === req.params.ign.toLowerCase() ? { ...a, status } : a
+  );
+
+  const { error } = await supabase.from('tournaments')
+    .update({ applications: apps }).eq('id', req.params.id);
   if (error) return res.status(500).json({ message: error.message });
   res.json({ success: true });
 });
