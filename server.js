@@ -214,6 +214,38 @@ app.patch('/api/admin/users/:id/admin', auth, adminOnly, async (req, res) => {
   res.json({ success: true });
 });
 
+// ── TOURNAMENTS (public GET) ───────────────────────────────
+app.get('/api/tournaments', async (req, res) => {
+  const { data, error } = await supabase
+    .from('tournaments')
+    .select('*')
+    .order('date', { ascending: false });
+  if (error) return res.status(500).json({ message: error.message });
+  res.json({ tournaments: data });
+});
+
+// ── TOURNAMENTS (admin POST) ───────────────────────────────
+app.post('/api/tournaments', auth, adminOnly, async (req, res) => {
+  const { name, mode, date, max_players, status, description, players } = req.body;
+  if (!name) return res.status(400).json({ message: 'Name required' });
+
+  const { data, error } = await supabase
+    .from('tournaments')
+    .insert([{ name, mode, date, max_players, status: status || 'upcoming', description, players: players || [] }])
+    .select()
+    .single();
+
+  if (error) return res.status(500).json({ message: error.message });
+  res.json({ tournament: data });
+});
+
+// ── TOURNAMENTS (admin DELETE) ─────────────────────────────
+app.delete('/api/tournaments/:id', auth, adminOnly, async (req, res) => {
+  const { error } = await supabase.from('tournaments').delete().eq('id', req.params.id);
+  if (error) return res.status(500).json({ message: error.message });
+  res.json({ success: true });
+});
+
 // ── PLAYER TIER HISTORY (public) ───────────────────────────
 app.get('/api/players/history', async (req, res) => {
   const { username } = req.query;

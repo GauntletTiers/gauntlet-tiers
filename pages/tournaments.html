@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tournaments — Gauntlet Tiers</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    /* ── CREATE FORM ── */
+    .create-tournament-form {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.75rem;
+      margin-bottom: 2rem;
+      display: none;
+    }
+    .create-tournament-form.open { display: block; }
+    .create-tournament-form h3 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .form-row .form-group { margin-bottom: 0; }
+
+    /* ── BRACKET ── */
+    .bracket-toggle {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      transition: color 0.15s;
+    }
+    .bracket-toggle:hover { color: var(--accent-gold); }
+
+    .bracket-wrapper {
+      display: none;
+      overflow-x: auto;
+      padding: 1.25rem 1.5rem 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .bracket-wrapper.open { display: block; }
+
+    .bracket-inner {
+      display: flex;
+      gap: 1.5rem;
+      min-width: max-content;
+    }
+
+    .bracket-round {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      min-width: 180px;
+    }
+
+    .bracket-round-label {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .bracket-matches {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      flex: 1;
+      gap: 0.75rem;
+    }
+
+    .bracket-match {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      transition: border-color 0.15s;
+    }
+    .bracket-match:hover { border-color: var(--border-accent); }
+
+    .bracket-player {
+      padding: 0.45rem 0.75rem;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+      transition: background 0.15s;
+    }
+    .bracket-player:last-child { border-bottom: none; }
+    .bracket-player.winner {
+      color: var(--accent-gold);
+      font-weight: 600;
+      background: rgba(212,160,23,0.05);
+    }
+    .bracket-player.tbd { color: var(--text-muted); font-style: italic; font-size: 0.78rem; }
+    .bracket-score {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      min-width: 16px;
+      text-align: right;
+    }
+    .bracket-score.win { color: var(--accent-gold); }
+
+    /* ── EMPTY / FILTER ── */
+    .filter-bar {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .filter-bar span {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-right: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="../index.html" class="nav-brand">Gauntlet<span> Tiers</span></a>
+  <ul class="nav-links">
+    <li><a href="../index.html">Home</a></li>
+    <li><a href="tierlist.html">Tier List</a></li>
+    <li><a href="tournaments.html" class="active">Tournaments</a></li>
+    <li><a href="community.html">Community</a></li>
+    <li><a href="support.html">Support</a></li>
+  </ul>
+  <div class="nav-auth">
+    <div class="nav-user">
+      <a href="admin.html" class="btn-ghost nav-admin" style="display:none;">Admin</a>
+      <a href="profile.html" class="btn-ghost"><span class="nav-username">Profile</span></a>
+      <button class="btn-danger logout-btn">Logout</button>
+    </div>
+    <div class="nav-login">
+      <a href="login.html" class="btn-ghost">Login</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <h1>Tournaments</h1>
+    <p>Competitive events across all PvP game modes</p>
+  </div>
+
+  <div class="tournaments-page">
+
+    <!-- Admin: create tournament button -->
+    <div id="admin-bar" style="display:none;margin-bottom:1.25rem;">
+      <button class="btn-primary" id="toggle-create-btn" onclick="toggleCreateForm()">
+        + Create Tournament
+      </button>
+    </div>
+
+    <!-- Create tournament form (admin only) -->
+    <div class="create-tournament-form" id="create-form">
+      <h3>New Tournament</h3>
+      <div class="alert error" id="create-error"></div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tournament Name</label>
+          <input type="text" id="t-name" placeholder="e.g. GT Sword Open #1" />
+        </div>
+        <div class="form-group">
+          <label>Game Mode</label>
+          <select id="t-mode">
+            <option value="sword">Sword</option>
+            <option value="mace">Mace</option>
+            <option value="axe">Axe</option>
+            <option value="uhc">UHC</option>
+            <option value="pot">Pot</option>
+            <option value="crystal">Crystal</option>
+            <option value="smp">SMP</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="t-date" />
+        </div>
+        <div class="form-group">
+          <label>Max Players</label>
+          <select id="t-size">
+            <option value="4">4</option>
+            <option value="8" selected>8</option>
+            <option value="16">16</option>
+            <option value="32">32</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="t-status">
+            <option value="upcoming">Upcoming</option>
+            <option value="ongoing">Ongoing</option>
+            <option value="finished">Finished</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Description (optional)</label>
+        <textarea id="t-desc" placeholder="Prize, rules, format..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Players (one per line, in bracket order)</label>
+        <textarea id="t-players" placeholder="Player1&#10;Player2&#10;Player3&#10;Player4" style="min-height:120px;"></textarea>
+      </div>
+
+      <div style="display:flex;gap:0.75rem;margin-top:0.5rem;">
+        <button class="btn-primary" id="create-btn" onclick="createTournament()">Create Tournament</button>
+        <button class="btn-ghost" onclick="toggleCreateForm()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="filter-bar">
+      <span>Filter:</span>
+      <button class="mode-tab active" data-filter="all">All</button>
+      <button class="mode-tab" data-filter="upcoming">Upcoming</button>
+      <button class="mode-tab" data-filter="ongoing">Ongoing</button>
+      <button class="mode-tab" data-filter="finished">Finished</button>
+    </div>
+
+    <!-- Tournament list -->
+    <div id="tournament-list">
+      <!-- skeleton -->
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <a href="../index.html" class="footer-brand">Gauntlet Tiers</a>
+  <div class="footer-links">
+    <a href="../index.html">Home</a>
+    <a href="tierlist.html">Rankings</a>
+    <a href="tournaments.html">Tournaments</a>
+    <a href="community.html">Community</a>
+    <a href="support.html">Support</a>
+  </div>
+</footer>
+
+<script src="../js/toast.js"></script>
+<script src="../js/skeleton.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/api.js"></script>
+<script>
+  let allTournaments = [];
+  let currentFilter  = 'all';
+
+  function esc(str) {
+    const d = document.createElement('div');
+    d.appendChild(document.createTextNode(String(str || '')));
+    return d.innerHTML;
+  }
+
+  // ── Init ───────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    const user = getUser();
+    if (user && user.is_admin) {
+      document.getElementById('admin-bar').style.display = 'block';
+    }
+
+    // Filter tabs
+    document.querySelectorAll('[data-filter]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderTournaments();
+      });
+    });
+
+    loadTournaments();
+  });
+
+  // ── Toggle create form ──────────────────────────────────
+  function toggleCreateForm() {
+    const form = document.getElementById('create-form');
+    const btn  = document.getElementById('toggle-create-btn');
+    const open = form.classList.toggle('open');
+    btn.textContent = open ? '✕ Cancel' : '+ Create Tournament';
+  }
+
+  // ── Load tournaments ────────────────────────────────────
+  async function loadTournaments() {
+    const list = document.getElementById('tournament-list');
+    list.innerHTML = skeleton.tournamentCards(3);
+
+    try {
+      const data = await apiFetch('/tournaments');
+      allTournaments = data.tournaments || [];
+      renderTournaments();
+    } catch(e) {
+      // If backend not connected yet, show demo data
+      allTournaments = getDemoTournaments();
+      renderTournaments();
+    }
+  }
+
+  // ── Render tournament cards ─────────────────────────────
+  function renderTournaments() {
+    const list = document.getElementById('tournament-list');
+    let filtered = allTournaments;
+
+    if (currentFilter !== 'all') {
+      filtered = allTournaments.filter(t => t.status === currentFilter);
+    }
+
+    if (!filtered.length) {
+      list.innerHTML = `
+        <div class="empty-state" style="padding:4rem 2rem;text-align:center;">
+          <strong style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;letter-spacing:1px;">
+            No ${currentFilter === 'all' ? '' : currentFilter} tournaments yet
+          </strong>
+          <p style="margin-top:0.5rem;">Check back soon or join our Discord for announcements.</p>
+        </div>`;
+      return;
+    }
+
+    list.innerHTML = filtered.map((t, i) => buildTournamentCard(t, i)).join('');
+  }
+
+  // ── Build a tournament card ─────────────────────────────
+  function buildTournamentCard(t, i) {
+    const statusClass = { upcoming:'status-upcoming', ongoing:'status-ongoing', finished:'status-finished' };
+    const statusLabel = { upcoming:'Upcoming', ongoing:'Ongoing', finished:'Finished' };
+    const dateStr = t.date ? new Date(t.date).toLocaleDateString('en-US', { day:'numeric', month:'long', year:'numeric' }) : 'TBA';
+
+    const bracketHtml = buildBracket(t);
+
+    const user = getUser();
+    const isAdmin = user && user.is_admin;
+
+    return `
+      <div class="tournament-card" style="animation:fadeSlideUp 0.45s ease ${i * 0.07}s both;">
+        <div class="tournament-card-header">
+          <h3>${esc(t.name)}</h3>
+          <div style="display:flex;align-items:center;gap:0.75rem;">
+            <span class="tournament-status ${statusClass[t.status] || 'status-upcoming'}">
+              ${statusLabel[t.status] || t.status}
+            </span>
+            ${isAdmin ? `
+              <button class="btn-ghost" style="padding:0.25rem 0.65rem;font-size:0.72rem;"
+                onclick="deleteThisTournament('${t.id}')">Remove</button>
+            ` : ''}
+          </div>
+        </div>
+
+        <div class="tournament-card-body">
+          <div class="tournament-meta-item">
+            <span class="tournament-meta-label">Mode</span>
+            <span class="tournament-meta-value">${esc(t.mode?.toUpperCase() || '—')}</span>
+          </div>
+          <div class="tournament-meta-item">
+            <span class="tournament-meta-label">Date</span>
+            <span class="tournament-meta-value">${dateStr}</span>
+          </div>
+          <div class="tournament-meta-item">
+            <span class="tournament-meta-label">Players</span>
+            <span class="tournament-meta-value">${(t.players || []).filter(p => p && p !== 'TBD').length} / ${t.max_players || '?'}</span>
+          </div>
+          ${t.description ? `
+          <div class="tournament-meta-item" style="flex:1;min-width:200px;">
+            <span class="tournament-meta-label">Info</span>
+            <span class="tournament-meta-value" style="font-weight:400;color:var(--text-secondary);font-size:0.85rem;">${esc(t.description)}</span>
+          </div>` : ''}
+        </div>
+
+        ${bracketHtml ? `
+        <div style="padding:0.5rem 1.5rem;border-top:1px solid var(--border);">
+          <button class="bracket-toggle" onclick="toggleBracket(this)">▼ View Bracket</button>
+        </div>
+        <div class="bracket-wrapper">
+          <div class="bracket-inner">${bracketHtml}</div>
+        </div>` : ''}
+      </div>`;
+  }
+
+  // ── Build bracket HTML from players array ───────────────
+  function buildBracket(t) {
+    const players = (t.players || []);
+    const size    = t.max_players || players.length;
+    if (!size || size < 2) return '';
+
+    // Pad to next power of 2
+    const slots   = Math.pow(2, Math.ceil(Math.log2(Math.max(size, 2))));
+    const padded  = [...players];
+    while (padded.length < slots) padded.push('TBD');
+
+    // Build rounds
+    const rounds   = [];
+    let current    = padded;
+
+    while (current.length >= 2) {
+      const matches = [];
+      for (let i = 0; i < current.length; i += 2) {
+        matches.push([current[i], current[i + 1]]);
+      }
+      rounds.push(matches);
+      // Next round: winners (stored in bracket data if available)
+      const nextRound = t.results ? t.results[rounds.length - 1] || [] : [];
+      current = matches.map((m, i) => nextRound[i] || 'TBD');
+      if (current.every(p => p === 'TBD') && rounds.length > 1) break;
+    }
+
+    const roundNames = ['Round 1','Quarter-finals','Semi-finals','Final','Winner'];
+    const nameIndex  = Math.max(0, roundNames.length - rounds.length - 1);
+
+    return rounds.map((matches, ri) => {
+      const label = rounds.length === 1 ? 'Final'
+        : roundNames[nameIndex + ri] || `Round ${ri + 1}`;
+
+      return `
+        <div class="bracket-round">
+          <div class="bracket-round-label">${label}</div>
+          <div class="bracket-matches">
+            ${matches.map(([p1, p2]) => {
+              const results = t.results && t.results[ri];
+              const winner  = results ? results[Math.floor(matches.indexOf([p1,p2])/1)] : null;
+
+              const isTbd1 = !p1 || p1 === 'TBD';
+              const isTbd2 = !p2 || p2 === 'TBD';
+
+              return `
+                <div class="bracket-match">
+                  <div class="bracket-player ${isTbd1 ? 'tbd' : ''}">
+                    <span>${isTbd1 ? 'TBD' : esc(p1)}</span>
+                  </div>
+                  <div class="bracket-player ${isTbd2 ? 'tbd' : ''}">
+                    <span>${isTbd2 ? 'TBD' : esc(p2)}</span>
+                  </div>
+                </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // ── Toggle bracket visibility ───────────────────────────
+  function toggleBracket(btn) {
+    const wrapper = btn.closest('.tournament-card').querySelector('.bracket-wrapper');
+    const open    = wrapper.classList.toggle('open');
+    btn.textContent = open ? '▲ Hide Bracket' : '▼ View Bracket';
+  }
+
+  // ── Create tournament ───────────────────────────────────
+  async function createTournament() {
+    const name    = document.getElementById('t-name').value.trim();
+    const mode    = document.getElementById('t-mode').value;
+    const date    = document.getElementById('t-date').value;
+    const size    = parseInt(document.getElementById('t-size').value);
+    const status  = document.getElementById('t-status').value;
+    const desc    = document.getElementById('t-desc').value.trim();
+    const rawPlayers = document.getElementById('t-players').value;
+
+    const errEl = document.getElementById('create-error');
+    errEl.classList.remove('show');
+
+    if (!name) {
+      errEl.textContent = 'Tournament name is required.';
+      errEl.classList.add('show');
+      return;
+    }
+
+    const players = rawPlayers
+      .split('\n')
+      .map(p => p.trim())
+      .filter(p => p.length > 0)
+      .slice(0, size);
+
+    const btn = document.getElementById('create-btn');
+    btn.disabled = true;
+    btn.innerHTML = 'Creating… <span class="spinner"></span>';
+
+    try {
+      await apiFetch('/tournaments', {
+        method: 'POST',
+        body: JSON.stringify({ name, mode, date, max_players: size, status, description: desc, players })
+      });
+      toast.success(`Tournament "${name}" created!`);
+      toggleCreateForm();
+      // Reset form
+      ['t-name','t-desc','t-players'].forEach(id => document.getElementById(id).value = '');
+      loadTournaments();
+    } catch(e) {
+      // If backend not connected, add locally for demo
+      const newT = {
+        id: Date.now().toString(),
+        name, mode, date, max_players: size, status, description: desc, players
+      };
+      allTournaments.unshift(newT);
+      toast.success(`Tournament "${name}" created! (local preview)`);
+      toggleCreateForm();
+      renderTournaments();
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Create Tournament';
+    }
+  }
+
+  // ── Delete tournament ───────────────────────────────────
+  async function deleteThisTournament(id) {
+    if (!confirm('Remove this tournament?')) return;
+    try {
+      await apiFetch('/tournaments/' + id, { method: 'DELETE' });
+      toast.success('Tournament removed.');
+      loadTournaments();
+    } catch(e) {
+      // Remove locally
+      allTournaments = allTournaments.filter(t => t.id !== id);
+      renderTournaments();
+      toast.info('Removed (local preview).');
+    }
+  }
+
+  // ── Demo data (shown when backend not connected) ────────
+  function getDemoTournaments() {
+    return [
+      {
+        id: 'demo1',
+        name: 'GT Sword Open #1',
+        mode: 'sword',
+        date: new Date(Date.now() + 7 * 86400000).toISOString(),
+        max_players: 8,
+        status: 'upcoming',
+        description: 'Open tournament for all tiers. Join our Discord to sign up!',
+        players: ['RayX2', 'Shinibi_', 'misterrxx', 'Maze', 'TBD', 'TBD', 'TBD', 'TBD']
+      },
+      {
+        id: 'demo2',
+        name: 'GT Crystal Invitational',
+        mode: 'crystal',
+        date: new Date(Date.now() - 2 * 86400000).toISOString(),
+        max_players: 4,
+        status: 'ongoing',
+        description: 'Invitational for HT1-HT2 players only.',
+        players: ['loafxxl', 'bracedsubset740', 'RayX2', 'Shinibi_']
+      },
+      {
+        id: 'demo3',
+        name: 'GT UHC Season 1',
+        mode: 'uhc',
+        date: new Date(Date.now() - 14 * 86400000).toISOString(),
+        max_players: 8,
+        status: 'finished',
+        description: 'Season 1 concluded. Congratulations to the winner!',
+        players: ['Maze', 'misterrxx', 'loafxxl', 'RayX2', 'Shinibi_', 'bracedsubset740', 'TBD', 'TBD'],
+        results: [['Maze','loafxxl','RayX2','Shinibi_'],['Maze','RayX2'],['Maze']]
+      }
+    ];
+  }
+</script>
+</body>
+</html>

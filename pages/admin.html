@@ -61,6 +61,7 @@
   <ul class="nav-links">
     <li><a href="../index.html">Home</a></li>
     <li><a href="tierlist.html">Tier List</a></li>
+    <li><a href="tournaments.html">Tournaments</a></li>
     <li><a href="community.html">Community</a></li>
     <li><a href="support.html">Support</a></li>
   </ul>
@@ -160,7 +161,7 @@
         <table id="admin-table" style="min-width:700px;">
           <thead id="admin-table-head"></thead>
           <tbody id="admin-player-list">
-            <tr><td colspan="6"><div class="empty-state"><strong style="font-family:'Rajdhani',sans-serif;">Loading...</strong></div></td></tr>
+            <!-- skeleton -->
           </tbody>
         </table>
       </div>
@@ -177,7 +178,7 @@
             </tr>
           </thead>
           <tbody id="admin-user-list">
-            <tr><td colspan="4"><div class="empty-state"><strong style="font-family:'Rajdhani',sans-serif;">Loading...</strong></div></td></tr>
+            <!-- skeleton -->
           </tbody>
         </table>
       </div>
@@ -196,6 +197,8 @@
   </div>
 </footer>
 
+<script src="../js/toast.js"></script>
+<script src="../js/skeleton.js"></script>
 <script src="../js/auth.js"></script>
 <script src="../js/api.js"></script>
 <script>
@@ -291,6 +294,7 @@
 
       successEl.textContent = `${username} added → ` + entries.map(e => `${e.mode.toUpperCase()}: ${e.tier}`).join(' · ');
       successEl.classList.add('show');
+      toast.success(`${username} added successfully!`);
 
       document.getElementById('add-username').value = '';
       MODES.forEach(m => document.getElementById(`tier-${m}`).value = '');
@@ -313,7 +317,7 @@
     document.getElementById('list-mode-label').textContent =
       mode.charAt(0).toUpperCase() + mode.slice(1);
 
-    tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><strong style="font-family:'Rajdhani',sans-serif;">Loading...</strong></div></td></tr>`;
+    tbody.innerHTML = currentMode === 'overall' ? skeleton.overallRows(5) : skeleton.tierRows(5);
 
     try {
       if (mode === 'overall') {
@@ -405,7 +409,7 @@
       await updatePlayerTier(id, mode, sel.value);
       sel.style.borderColor = '#2ecc71';
       setTimeout(() => sel.style.borderColor = '', 1500);
-    } catch(e) { alert('Failed: ' + e.message); }
+    } catch(e) { toast.error(e.message || 'Something went wrong'); }
   }
 
   // ── SAVE all tiers for a player (overall row) ──────────
@@ -425,15 +429,16 @@
       selects.forEach(sel => {
         sel.style.borderColor = '#2ecc71';
         setTimeout(() => sel.style.borderColor = '', 1500);
+      toast.success('Tier saved!');
       });
-    } catch(e) { alert('Failed: ' + e.message); }
+    } catch(e) { toast.error(e.message || 'Something went wrong'); }
   }
 
   // ── REMOVE from one mode ───────────────────────────────
   async function removePlayer(id, username) {
     if (!confirm(`Remove ${username} from this mode?`)) return;
     try { await deletePlayer(id); loadPlayers(currentMode); }
-    catch(e) { alert('Failed: ' + e.message); }
+    catch(e) { toast.error(e.message || 'Something went wrong'); }
   }
 
   // ── REMOVE from all modes ──────────────────────────────
@@ -448,7 +453,7 @@
       await Promise.all(ids.map(id => deletePlayer(id)));
       loadPlayers('overall');
       loadAdminStats();
-    } catch(e) { alert('Failed: ' + e.message); }
+    } catch(e) { toast.error(e.message || 'Something went wrong'); }
   }
 
   // ── Mode tabs ──────────────────────────────────────────
@@ -490,7 +495,7 @@
 
   async function toggleAdmin(userId, isAdmin) {
     try { await setUserAdmin(userId, isAdmin); }
-    catch(e) { alert('Failed: ' + e.message); }
+    catch(e) { toast.error(e.message || 'Something went wrong'); }
   }
 </script>
 </body>

@@ -13,6 +13,7 @@
   <ul class="nav-links">
     <li><a href="../index.html">Home</a></li>
     <li><a href="tierlist.html" class="active">Tier List</a></li>
+    <li><a href="tournaments.html">Tournaments</a></li>
     <li><a href="community.html">Community</a></li>
     <li><a href="support.html">Support</a></li>
   </ul>
@@ -74,13 +75,7 @@
           </tr>
         </thead>
         <tbody id="tier-table-body">
-          <tr>
-            <td colspan="4">
-              <div class="empty-state">
-                <strong style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;letter-spacing:1px;">Loading...</strong>
-              </div>
-            </td>
-          </tr>
+<!-- skeleton loaded by JS -->
         </tbody>
       </table>
     </div>
@@ -98,6 +93,8 @@
   </div>
 </footer>
 
+<script src="../js/toast.js"></script>
+<script src="../js/skeleton.js"></script>
 <script src="../js/auth.js"></script>
 <script src="../js/api.js"></script>
 <script>
@@ -116,7 +113,7 @@
     const thead = document.getElementById('tier-table-head');
     const cols  = mode === 'overall' ? MODES.length + 3 : 4;
 
-    tbody.innerHTML = `<tr><td colspan="${cols}"><div class="empty-state"><strong style="font-family:'Rajdhani',sans-serif;">Loading...</strong></div></td></tr>`;
+    tbody.innerHTML = cols > 4 ? skeleton.overallRows() : skeleton.tierRows();
 
     try {
       if (mode === 'overall') {
