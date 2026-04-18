@@ -140,19 +140,32 @@ app.get('/api/players', async (req, res) => {
   res.json({ players: data });
 });
 
-// ── GET SINGLE PLAYER ──────────────────────────────────────
+// ── GET SINGLE PLAYER (by username or user id) ────────────
 app.get('/api/players/:id', async (req, res) => {
-  const { data, error } = await supabase
+  const param = req.params.id;
+
+  // Try by username first (most common case — admin adds players by IGN)
+  let { data, error } = await supabase
     .from('player_tiers')
     .select('*')
-    .eq('player_id', req.params.id);
+    .ilike('username', param);
+
+  // If nothing found by username, try by player_id (UUID)
+  if ((!data || data.length === 0) && !error) {
+    const res2 = await supabase
+      .from('player_tiers')
+      .select('*')
+      .eq('player_id', param);
+    data  = res2.data;
+    error = res2.error;
+  }
 
   if (error) return res.status(500).json({ message: error.message });
 
   // Group tiers by mode
   const tiers = {};
   (data || []).forEach(row => { tiers[row.mode] = row.tier; });
-  res.json({ tiers });
+  res.json({ tiers, username: data?.[0]?.username || null });
 });
 
 // ── STATS (public) ─────────────────────────────────────────
