@@ -156,6 +156,13 @@ app.patch('/api/admin/players/:id/tier', auth, adminOnly, async (req, res) => {
   const { mode, tier } = req.body;
   const TIER_RANK = { HT1:1,LT1:2,HT2:3,LT2:4,HT3:5,LT3:6,HT4:7,LT4:8,HT5:9,LT5:10 };
 
+  // Get current tier for history
+  const { data: current } = await supabase
+    .from('player_tiers')
+    .select('tier, username')
+    .eq('id', req.params.id)
+    .single();
+
   const { error } = await supabase
     .from('player_tiers')
     .update({ tier, tier_rank: TIER_RANK[tier] || 99 })
@@ -163,6 +170,17 @@ app.patch('/api/admin/players/:id/tier', auth, adminOnly, async (req, res) => {
     .eq('mode', mode);
 
   if (error) return res.status(500).json({ message: error.message });
+
+  // Save history if tier actually changed
+  if (current && current.tier !== tier) {
+    await supabase.from('tier_history').insert([{
+      username: current.username,
+      mode,
+      old_tier: current.tier,
+      new_tier: tier
+    }]);
+  }
+
   res.json({ success: true });
 });
 
@@ -194,6 +212,22 @@ app.patch('/api/admin/users/:id/admin', auth, adminOnly, async (req, res) => {
 
   if (error) return res.status(500).json({ message: error.message });
   res.json({ success: true });
+});
+
+// ── PLAYER TIER HISTORY (public) ───────────────────────────
+app.get('/api/players/history', async (req, res) => {
+  const { username } = req.query;
+  if (!username) return res.status(400).json({ message: 'username required' });
+
+  const { data, error } = await supabase
+    .from('tier_history')
+    .select('*')
+    .eq('username', username)
+    .order('changed_at', { ascending: false })
+    .limit(50);
+
+  if (error) return res.status(500).json({ message: error.message });
+  res.json({ history: data });
 });
 
 app.listen(PORT, () => console.log(`Gauntlet Tiers backend running on port ${PORT}`));

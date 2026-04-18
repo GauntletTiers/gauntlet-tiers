@@ -161,7 +161,12 @@
         tbody.innerHTML = players.map(([username, data], i) => `
           <tr>
             <td class="rank-num">${i + 1}</td>
-            <td class="player-name">${esc(username)}</td>
+            <td>
+              <div class="player-cell">
+                <img class="mc-skin" src="https://crafatar.com/avatars/${esc(username)}?size=36&overlay" alt="${esc(username)}" onerror="this.style.display='none'" />
+                <a class="player-name" href="player.html?user=${encodeURIComponent(username)}" style="text-decoration:none;color:inherit;">${esc(username)}</a>
+              </div>
+            </td>
             <td><span class="region-badge">${esc(data.region || 'N/A')}</span></td>
             ${MODES.map(m => `
               <td>
@@ -192,7 +197,12 @@
         tbody.innerHTML = players.map((p, i) => `
           <tr>
             <td class="rank-num">${i + 1}</td>
-            <td class="player-name">${esc(p.username)}</td>
+            <td>
+              <div class="player-cell">
+                <img class="mc-skin" src="https://crafatar.com/avatars/${esc(p.username)}?size=36&overlay" alt="${esc(p.username)}" onerror="this.style.display='none'" />
+                <a class="player-name" href="player.html?user=${encodeURIComponent(p.username)}" style="text-decoration:none;color:inherit;">${esc(p.username)}</a>
+              </div>
+            </td>
             <td><span class="region-badge">${esc(p.region || 'N/A')}</span></td>
             <td><span class="tier-badge tier-${p.tier}">${p.tier}</span></td>
           </tr>`).join('');

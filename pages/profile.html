@@ -84,7 +84,7 @@
 <script src="../js/auth.js"></script>
 <script src="../js/api.js"></script>
 <script>
-  const MODES = ['overall','sword','axe','uhc','pot','crystal','smp'];
+  const MODES = ['sword','mace','axe','uhc','pot','crystal','smp'];
 
   function renderProfile() {
     const user = getUser();
@@ -95,7 +95,16 @@
     }
 
     const initials = (user.username || user.email || '?').slice(0, 2).toUpperCase();
-    document.getElementById('profile-avatar').textContent = initials;
+    const avatarEl = document.getElementById('profile-avatar');
+    if (user.username) {
+      avatarEl.innerHTML = `<img class="mc-skin-lg" src="https://crafatar.com/avatars/${encodeURIComponent(user.username)}?size=80&overlay" alt="${user.username}" onerror="this.outerHTML='<div style=\'width:80px;height:80px;border-radius:8px;background:rgba(212,160,23,0.15);border:2px solid var(--accent-gold);display:flex;align-items:center;justify-content:center;font-family:Rajdhani,sans-serif;font-size:1.8rem;font-weight:700;color:var(--accent-gold);\'>${initials}</div>'" />`;
+      avatarEl.style.background = 'none';
+      avatarEl.style.border = 'none';
+      avatarEl.style.width = 'auto';
+      avatarEl.style.height = 'auto';
+    } else {
+      avatarEl.textContent = initials;
+    }
     document.getElementById('profile-username').textContent = user.username || user.email;
     document.getElementById('profile-email').textContent = user.email;
     document.getElementById('profile-joined').textContent = user.created_at

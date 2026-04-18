@@ -883,3 +883,133 @@ footer {
 .text-muted { color: var(--text-muted); }
 .mt-1 { margin-top: 0.5rem; }
 .w-full { width: 100%; }
+
+/* ── PAGE ANIMATIONS ── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+nav              { animation: fadeIn 0.4s ease both; }
+.hero-badge      { animation: fadeSlideUp 0.5s ease 0.10s both; }
+.hero h1         { animation: fadeSlideUp 0.55s ease 0.18s both; }
+.hero p          { animation: fadeSlideUp 0.55s ease 0.26s both; }
+.hero-buttons    { animation: fadeSlideUp 0.55s ease 0.34s both; }
+.page-header h1  { animation: fadeSlideUp 0.5s ease 0.05s both; }
+.page-header p   { animation: fadeSlideUp 0.5s ease 0.13s both; }
+.stats-bar       { animation: fadeIn 0.6s ease 0.3s both; }
+.cta-section     { animation: fadeIn 0.5s ease 0.1s both; }
+.auth-card       { animation: fadeSlideUp 0.5s ease 0.1s both; }
+.tier-page       { animation: fadeSlideUp 0.45s ease 0.1s both; }
+.profile-page    { animation: fadeSlideUp 0.45s ease 0.1s both; }
+.admin-page      { animation: fadeSlideUp 0.45s ease 0.1s both; }
+.community-page  { animation: fadeSlideUp 0.45s ease 0.1s both; }
+.support-page    { animation: fadeSlideUp 0.45s ease 0.1s both; }
+
+.feature-card:nth-child(1) { animation: fadeSlideUp 0.5s ease 0.10s both; }
+.feature-card:nth-child(2) { animation: fadeSlideUp 0.5s ease 0.18s both; }
+.feature-card:nth-child(3) { animation: fadeSlideUp 0.5s ease 0.26s both; }
+.feature-card:nth-child(4) { animation: fadeSlideUp 0.5s ease 0.34s both; }
+
+/* ── MINECRAFT SKIN ── */
+.mc-skin {
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  image-rendering: pixelated;
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+.mc-skin-lg {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  image-rendering: pixelated;
+  border: 2px solid var(--accent-gold);
+  background: var(--bg-secondary);
+}
+
+.player-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── PLAYER PUBLIC PAGE ── */
+.player-public-page { padding: 2rem; max-width: 860px; margin: 0 auto; }
+
+.player-public-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  animation: fadeSlideUp 0.5s ease 0.05s both;
+}
+
+.player-public-info h1 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.player-public-info p { color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.25rem; }
+
+.player-public-tiers {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+  animation: fadeSlideUp 0.5s ease 0.15s both;
+}
+
+.history-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.75rem;
+  animation: fadeSlideUp 0.5s ease 0.25s both;
+}
+
+.history-section h3 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.88rem;
+}
+.history-item:last-child { border-bottom: none; }
+.history-mode {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  min-width: 60px;
+}
+.history-arrow { color: var(--text-muted); font-size: 0.8rem; }
+.history-date  { color: var(--text-muted); font-size: 0.78rem; margin-left: auto; }
